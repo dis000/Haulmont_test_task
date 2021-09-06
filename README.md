@@ -4,6 +4,9 @@ sql находится в ресурсах.
 Файл sql не отражает текущую бд из за использования orm, Set<Client> в entity чрезвычайно удобна и я не могу повторить создание такой же бд на sql.
 
 Он отражает как бы выглядела бд без использования jpa hibernate
+  
+  ![alt text](https://c.tenor.com/YnizaZv-1TMAAAAC/patrick-star-dumb.gif)
+  
 
 </br></br></br></br></br></br>
 
