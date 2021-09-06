@@ -25,7 +25,7 @@ public class PaymentSchedule implements IEntity {
     private UUID ID;
 
 
-    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "CREDIT_OFFER")
     @NotNull
     private CreditOffer creditOffer;

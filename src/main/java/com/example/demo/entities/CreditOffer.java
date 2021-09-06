@@ -38,7 +38,7 @@ public class CreditOffer implements IEntity {
     private BigDecimal amountOfPayment;
 
     //TODO
-    @OneToMany(mappedBy = "creditOffer", fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "creditOffer", fetch = FetchType.EAGER)
     private Set<PaymentSchedule> paymentSchedule;
 
 

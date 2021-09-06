@@ -1,6 +1,6 @@
 CREATE table BANK (
     ID UUID primary key not null,
-    NAME VARCHAR(25)
+    NAME VARCHAR(25) unique
 
 );
 

@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
@@ -28,7 +29,9 @@ public class Credit implements IEntity {
     @Column(name = "PERCENT_RATE")
     private BigDecimal percentRate;
 
-    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "BANK")
+    @NotNull
     private Bank bank;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "credit")

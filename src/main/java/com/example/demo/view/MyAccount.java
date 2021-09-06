@@ -28,10 +28,7 @@ public class MyAccount extends VerticalLayout {
     TextField phoneField = new TextField("Телефон");
     TextField passportField = new TextField("Номер паспорта");
     TextField bankField = new TextField("Ваш банк");
-    BigDecimalField textField5 = new BigDecimalField();
-    TextField textField6 = new TextField();
-    TextField textField7 = new TextField();
-    TextField textField8 = new TextField();
+    BigDecimalField indebtedness = new BigDecimalField();
     Select<Client> clientSelect = new Select<>();
     Select<CreditOffer> creditOfferSelect = new Select<>();
 
@@ -39,11 +36,10 @@ public class MyAccount extends VerticalLayout {
     Button button1 = new Button("Сохранить");
     @Autowired
     public MyAccount(
-            IBankService bankService,
             IClientService clientService,
-            ICreditService creditService,
             ICreditOfferService creditOfferService,
             IPaymentScheduleService paymentScheduleService) {
+
 
 
 
@@ -59,7 +55,7 @@ public class MyAccount extends VerticalLayout {
         HorizontalLayout horizontalLayout = new HorizontalLayout(nameField, phoneField, button);
         HorizontalLayout horizontalLayout1 = new HorizontalLayout(passportField, bankField, button1);
 
-        add(clientSelect,horizontalLayout,horizontalLayout1,creditOfferSelect,textField5);
+        add(clientSelect,horizontalLayout,horizontalLayout1,creditOfferSelect, indebtedness);
 
     }
 
@@ -67,6 +63,7 @@ public class MyAccount extends VerticalLayout {
 
     private void configureSelects(IClientService clientService, ICreditOfferService creditOfferService, IPaymentScheduleService paymentScheduleService) {
         creditOfferSelect.setVisible(false);
+        creditOfferSelect.setLabel("Просмотр задолжности");
 
         clientSelect.setLabel("Тестовое поле");
 
@@ -81,33 +78,40 @@ public class MyAccount extends VerticalLayout {
             List<CreditOffer> creditOffer = creditOfferService.getByClientID(client.getID());
             creditOfferSelect.setItems(creditOffer);
             creditOfferSelect.setVisible(true);
-            button.setVisible(true);
+            button.setEnabled(true);
         });
 
         creditOfferSelect.addValueChangeListener(select -> {
             List<PaymentSchedule> scheduleList = paymentScheduleService.getByPassportID(client.getPassportID());
 
-            List<PaymentSchedule> resScheduleList = scheduleList.stream().filter(paymentSchedule -> paymentSchedule.getPaymentDate().isBefore(LocalDate.now().plusMonths(4))).collect(Collectors.toList());
+            List<PaymentSchedule> resScheduleList = scheduleList.stream().filter(paymentSchedule ->
+                    paymentSchedule.getPaymentDate().isBefore(LocalDate.now().plusMonths(4))
+                            &
+                            creditOfferSelect.getValue().getID().equals(paymentSchedule.getCreditOffer().getID()))
+                    .collect(Collectors.toList());
+
             BigDecimal bigDecimal = new BigDecimal(0);
             for (PaymentSchedule schedule:
                  resScheduleList) {
                 bigDecimal = bigDecimal.add(schedule.getAmountOfPayment());
             }
 
-            textField5.setValue(bigDecimal);
-            textField5.setLabel("нужно оплатить до " + LocalDate.now().plusMonths(4));
+            indebtedness.setValue(bigDecimal);
+            indebtedness.setLabel("нужно оплатить до " + LocalDate.now().plusMonths(4));
         });
     }
     private void configureFields() {
-        textField5.setWidth(6F, Unit.CM);
+        indebtedness.setWidth(6F, Unit.CM);
         creditOfferSelect.setWidth(6F, Unit.CM);
         clientSelect.setWidth(6F, Unit.CM);
 
+        bankField.setReadOnly(true);
+        indebtedness.setReadOnly(true);
         nameField.setReadOnly(true);
         phoneField.setReadOnly(true);
         passportField.setReadOnly(true);
-        button1.setVisible(false);
-        button.setVisible(false);
+        button1.setEnabled(false);
+        button.setEnabled(false);
 
 
 
@@ -118,16 +122,16 @@ public class MyAccount extends VerticalLayout {
             nameField.setReadOnly(false);
             phoneField.setReadOnly(false);
             passportField.setReadOnly(false);
-            button.setVisible(false);
-            button1.setVisible(true);
+            button.setEnabled(false);
+            button1.setEnabled(true);
         });
 
         button1.addClickListener(buttonClickEvent -> {
             nameField.setReadOnly(true);
             phoneField.setReadOnly(true);
             passportField.setReadOnly(true);
-            button.setVisible(true);
-            button1.setVisible(false);
+            button.setEnabled(true);
+            button1.setEnabled(false);
 
             client.setPhone(phoneField.getValue());
             client.setPassportID(passportField.getValue());

@@ -10,4 +10,5 @@ public interface IBankDao extends IAbstractJpaDao<Bank, UUID> {
 
     Bank findBankClients(UUID uuid);
     Bank findBankCredits(UUID uuid);
+    Bank findByName(String name);
 }

@@ -55,6 +55,9 @@ public class Client implements IEntity {
         this.bank = bank;
     }
 
-
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
 

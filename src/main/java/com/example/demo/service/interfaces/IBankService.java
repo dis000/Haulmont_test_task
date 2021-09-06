@@ -14,4 +14,5 @@ public interface IBankService {
     Bank getBankCredits(UUID uuid);
     Bank getById(UUID uuid);
     void deleteByID(UUID uuid);
+    Bank getByName(String name);
 }

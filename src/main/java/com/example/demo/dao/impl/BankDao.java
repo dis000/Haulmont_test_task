@@ -24,13 +24,17 @@ public class BankDao extends AbstractJpaDao<Bank, UUID> implements IBankDao {
 
     public Bank findBankClients(UUID uuid) {
         return entityManager.createQuery(
-                "select b from Bank b left join b.clients where b.ID='"+ uuid +"'", Bank.class)
+                "select b from Bank b join fetch b.clients where b.ID='"+ uuid +"'", Bank.class)
                 .getSingleResult();
     }
 
     public Bank findBankCredits(UUID uuid) {
         return entityManager.createQuery(
-                "select b from Bank b left join b.credits where b.ID='"+ uuid +"'", Bank.class)
+                "select b from Bank b join fetch b.credits where b.ID='"+ uuid +"'", Bank.class)
+                .getSingleResult();
+    }
+    public Bank findByName(String name) {
+        return entityManager.createQuery("select b from Bank b where b.name ='" + name + "'",Bank.class)
                 .getSingleResult();
     }
 }

@@ -17,7 +17,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route(value = "sing_up", layout = Menu.class)
+@Route(value = "sign_up", layout = Menu.class)
 public class SignUp extends VerticalLayout {
 
     private TextField name = new TextField("ФИО Полностью");

@@ -70,7 +70,7 @@ public class CreateCredit extends VerticalLayout  {
                     creditLimit.getValue(),
                     percentRate.getValue());
 
-            creditService.save(credit);
+            creditService.update(credit);
         });
         return button;
     }

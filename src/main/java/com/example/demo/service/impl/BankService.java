@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 
@@ -26,6 +27,7 @@ class BankService implements IBankService {
 
     @Override
     public void save(Bank bank) {
+        bank.setName(bank.getName().toLowerCase());
         dao.save(bank);
     }
 
@@ -57,5 +59,10 @@ class BankService implements IBankService {
     @Override
     public void deleteByID(UUID uuid) {
         dao.deleteById(uuid);
+    }
+
+    @Override
+    public Bank getByName(String name) {
+        return dao.findByName(name.toLowerCase());
     }
 }
