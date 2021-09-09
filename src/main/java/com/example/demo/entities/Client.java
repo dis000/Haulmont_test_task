@@ -44,7 +44,7 @@ public class Client implements IEntity {
     private Bank bank;
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "client", orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "client")
     private Set<CreditOffer> creditOffers;
 
 
