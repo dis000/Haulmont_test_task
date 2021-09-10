@@ -26,28 +26,39 @@ import java.util.List;
 @Route(value = "database", layout = Menu.class)
 public class Database extends VerticalLayout  {
 
-
-    Grid <Client> clientsGrid = new Grid<>(Client.class);
-    Grid <PaymentSchedule> scheduleGrid = new Grid<>(PaymentSchedule.class);
-    Grid <Client> bankClientsGrid = new Grid<>(Client.class);
-    Grid <Credit> bankCreditsGrid = new Grid<>(Credit.class);
+    IBankService bankService;
+    IClientService clientService;
+    IPaymentScheduleService paymentScheduleService;
 
 
-    Tabs tabs = new Tabs();
-    Tab tab = new Tab("Клиенты");
-    Tab tab2 = new Tab("График платежей");
-    Tab tab3 = new Tab("Клиенты банка");
-    Tab tab4 = new Tab("Кредиты банка");
+    private final Grid <Client> clientsGrid = new Grid<>(Client.class);
+    private final Grid <PaymentSchedule> scheduleGrid = new Grid<>(PaymentSchedule.class);
+    private final Grid <Client> bankClientsGrid = new Grid<>(Client.class);
+    private final Grid <Credit> bankCreditsGrid = new Grid<>(Credit.class);
 
-    TextField searchField = new TextField();
 
-    Button button = new Button("search");
+    private final Tabs tabs = new Tabs();
+    private final Tab tab = new Tab("Клиенты");
+    private final Tab tab2 = new Tab("График платежей");
+    private final Tab tab3 = new Tab("Клиенты банка");
+    private final Tab tab4 = new Tab("Кредиты банка");
 
-    @Autowired
+    private final TextField searchField = new TextField();
+
+    private final Button button = new Button("search");
+
+
     public Database(
-            IBankService bankService,
-            IClientService clientService,
-            IPaymentScheduleService paymentScheduleService) {
+            @Autowired IBankService bankS,
+            @Autowired IClientService clientS,
+            @Autowired IPaymentScheduleService scheduleS) {
+
+        this.bankService = bankS;
+        this.clientService = clientS;
+        this.paymentScheduleService = scheduleS;
+
+
+
 
         searchField.setHelperText("поиск по паспорту");
         searchField.setWidth(8, Unit.CM);
@@ -66,7 +77,8 @@ public class Database extends VerticalLayout  {
 
         initializeTabs();
 
-        initializeButton(clientService,paymentScheduleService,bankService);
+        initializeButton();
+
 
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -121,10 +133,7 @@ public class Database extends VerticalLayout  {
         });
     }
 
-    private void initializeButton (
-            IClientService clientService,
-            IPaymentScheduleService paymentScheduleService,
-            IBankService bankService) {
+    private void initializeButton () {
 
         button.addClickListener(buttonClickEvent -> {
 

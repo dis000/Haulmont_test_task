@@ -10,8 +10,8 @@ public interface IClientService {
 
     List<Client> getAll();
     Client getOne(UUID uuid);
-    void save(Client client);
-    void update(Client client);
+    void save(String name, String phone, String passportID, Bank bank);
+    void update(Client clientEdit);
     void deleteById(UUID uuid);
     void delete(Client client);
     Client getByPassportID(String passport);

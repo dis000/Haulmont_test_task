@@ -1,8 +1,11 @@
 package com.example.demo.view;
 
-import com.example.demo.entities.*;
-import com.example.demo.service.interfaces.*;
-
+import com.example.demo.entities.Client;
+import com.example.demo.entities.Credit;
+import com.example.demo.service.interfaces.IClientService;
+import com.example.demo.service.interfaces.ICreditOfferService;
+import com.example.demo.service.interfaces.ICreditService;
+import com.example.demo.service.interfaces.IPaymentScheduleService;
 import com.example.demo.view.menu.Menu;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
@@ -21,43 +24,50 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Route(value = "calculate", layout = Menu.class)
 public class CalculateCredit extends VerticalLayout {
-        TextField passportField = new TextField("Номер паспорта");
-        BigDecimalField creditAmount = new BigDecimalField("Сумма кредита");
-        NumberField creditTime = new NumberField("Срок кредита в годах");
-        BigDecimalField fullLoanAmountField = new BigDecimalField("Сумма возврата");
-        BigDecimalField resultPercentField = new BigDecimalField("Сумма процента");
-        BigDecimalField paymentPerMonth = new BigDecimalField("Сумма оплаты в меню");
-        BigDecimalField paymentPerMonthBody = new BigDecimalField("Тело кредита в месяц");
-        BigDecimalField paymentPerMonthPercent = new BigDecimalField("Процент кредита в месяц");
 
-        Select<Credit> creditsComboBox;
-
-        Button buttonEnterCreditOffer = new Button("Оформить");
+        IClientService clientService;
+        ICreditService creditService;
+        ICreditOfferService creditOfferService;
+        IPaymentScheduleService paymentScheduleService;
 
 
 
-        @Autowired
-        public CalculateCredit(
-                IClientService clientService,
-                ICreditService creditService,
-                ICreditOfferService creditOfferService,
-                IPaymentScheduleService paymentScheduleService) {
+        private final TextField passportField = new TextField("Номер паспорта");
+        private final BigDecimalField creditAmount = new BigDecimalField("Сумма кредита");
+        private final NumberField creditTime = new NumberField("Срок кредита в годах");
+        private final BigDecimalField fullLoanAmountField = new BigDecimalField("Сумма возврата");
+        private final BigDecimalField resultPercentField = new BigDecimalField("Сумма процента");
+        private final BigDecimalField paymentPerMonth = new BigDecimalField("Сумма оплаты в меню");
+        private final BigDecimalField paymentPerMonthBody = new BigDecimalField("Тело кредита в месяц");
+        private final BigDecimalField paymentPerMonthPercent = new BigDecimalField("Процент кредита в месяц");
+
+        private Select<Credit> creditsComboBox;
+
+        private final Button buttonEnterCreditOffer = new Button("Оформить");
 
 
+
+
+        public CalculateCredit(@Autowired IClientService clientS,
+                               @Autowired ICreditService creditS,
+                               @Autowired ICreditOfferService creditOfferS,
+                               @Autowired IPaymentScheduleService scheduleS) {
+
+                this.clientService = clientS;
+                this.creditService = creditS;
+                this.creditOfferService = creditOfferS;
+                this.paymentScheduleService = scheduleS;
 
 
                 buttonEnterCreditOffer.setVisible(false);
                 buttonEnterCreditOffer.addClickListener(buttonClickEvent
-                        -> createCreditAmount(clientService, creditOfferService, paymentScheduleService));
+                        -> createCreditAmount());
 
 
-                HorizontalLayout horizontalLayout1 = new HorizontalLayout(createComboBox(creditService), passportField);
+                HorizontalLayout horizontalLayout1 = new HorizontalLayout(createComboBox(), passportField);
 
                 HorizontalLayout horizontalLayout2 = new HorizontalLayout(creditAmount,creditTime);
 
@@ -119,7 +129,7 @@ public class CalculateCredit extends VerticalLayout {
                 return button;
         }
 
-
+        //дублирование кода с paymentScheduleService чтобы не нагружать сервер лишний раз
         private BigDecimal getPercentOfLoan () {
                 BigDecimal percent = creditsComboBox.getValue().getPercentRate();
                 BigDecimal percentOfLoan = percent.divide(BigDecimal.valueOf(100), 5, RoundingMode.HALF_DOWN);
@@ -180,35 +190,21 @@ public class CalculateCredit extends VerticalLayout {
         }
 
 
-        private void createCreditAmount(IClientService clientService, ICreditOfferService creditOfferService, IPaymentScheduleService paymentScheduleService) {
+        private void createCreditAmount() {
                 Client client = clientService.getByPassportID(passportField.getValue());
                 if (client == null) {
                         return;
                 }
 
-                Set<PaymentSchedule> scheduleList = new HashSet<>();
+                paymentScheduleService.save(
+                        creditTime.getValue().intValue(),
+                        creditAmount.getValue(),
+                        passportField.getValue(),
+                        creditsComboBox.getValue());
 
-                CreditOffer creditOffer = new CreditOffer(creditsComboBox.getValue(), client, creditAmount.getValue());
-
-
-                for (int i = 0; i < getCreditTimeInMonth().intValue(); i++) {
-                        PaymentSchedule paymentSchedule = new PaymentSchedule(
-                                LocalDate.now().plusMonths(i+1),
-                                getFullLoanAmount().divide(getCreditTimeInMonth(), 2, RoundingMode.HALF_DOWN),
-                                creditAmount.getValue().divide(getCreditTimeInMonth(), 2, RoundingMode.HALF_DOWN),
-                                getPercentOfLoan().divide(getCreditTimeInMonth(), 2, RoundingMode.HALF_DOWN)
-                                , creditOffer
-                                );
-
-                        scheduleList.add(paymentSchedule);
-                }
-
-
-                creditOfferService.save(creditOffer);
-                  paymentScheduleService.saveAll(scheduleList);
         }
 
-        private Component createComboBox(ICreditService creditService) {
+        private Component createComboBox() {
                 creditsComboBox = new Select<>();
                 creditsComboBox.setLabel("Кредит");
                 creditsComboBox.setPlaceholder("выбрать кредит");

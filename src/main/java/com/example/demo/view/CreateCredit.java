@@ -20,17 +20,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Route(value = "create_credit", layout = Menu.class)
 public class CreateCredit extends VerticalLayout  {
 
+    IBankService bankService;
+    ICreditService creditService;
 
-    Select<Bank> banksComboBox;
-    BigDecimalField creditLimit = new BigDecimalField("Макс сумма кредита");
-    BigDecimalField percentRate = new BigDecimalField("Процент кредита");
-
-
-    @Autowired
-    public CreateCredit(IBankService bankService, ICreditService creditService) {
+    private final Select<Bank> banksComboBox;
+    private final BigDecimalField creditLimit = new BigDecimalField("Макс сумма кредита");
+    private final BigDecimalField percentRate = new BigDecimalField("Процент кредита");
 
 
-        banksComboBox = createComboBox(bankService);
+
+    public CreateCredit(@Autowired IBankService bankS,
+                        @Autowired ICreditService creditS) {
+        this.bankService = bankS;
+        this.creditService = creditS;
+
+        banksComboBox = createComboBox();
 
         setWidthFull();
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -39,11 +43,11 @@ public class CreateCredit extends VerticalLayout  {
 
         add(new HorizontalLayout(creditLimit, percentRate));
 
-        add(createButton(creditService));
+        add(createButton());
 
 
     }
-    private Select<Bank> createComboBox(IBankService bankService) {
+    private Select<Bank> createComboBox() {
         Select<Bank> banksComboBox = new Select<>();
         banksComboBox.setPlaceholder("выбрать Банк");
 
@@ -57,7 +61,7 @@ public class CreateCredit extends VerticalLayout  {
 
     }
 
-    private Component createButton(ICreditService creditService) {
+    private Component createButton() {
         Button button = new Button();
 
         button.addClickListener(buttonClickEvent -> {
@@ -65,12 +69,11 @@ public class CreateCredit extends VerticalLayout  {
                 Notification.show("Все поля должны быть заполнены");
                 return;
             }
-            Credit credit = new Credit(
+
+            creditService.update(
                     banksComboBox.getValue(),
                     creditLimit.getValue(),
                     percentRate.getValue());
-
-            creditService.update(credit);
         });
         return button;
     }

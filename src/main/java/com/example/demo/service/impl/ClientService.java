@@ -1,6 +1,7 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.interfaces.IClientDao;
+import com.example.demo.entities.Bank;
 import com.example.demo.entities.Client;
 import com.example.demo.service.interfaces.IClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +41,18 @@ public class ClientService implements IClientService {
     }
 
     @Override
-    public void save(Client client) {
-        dao.save(client);
+    public void save(String name, String phone, String passportID, Bank bank) {
+        dao.update(new Client(name, phone, passportID, bank));
     }
 
     @Override
-    public void update(Client client) {
+    public void update(Client clientEdit) {
+
+        Client client = dao.findOne(clientEdit.getID());
+
+        client.setName(clientEdit.getName());
+        client.setPassportID(clientEdit.getPassportID());
+        client.setPhone(clientEdit.getPhone());
         dao.update(client);
     }
 

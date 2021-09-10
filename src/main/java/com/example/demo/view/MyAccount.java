@@ -23,31 +23,39 @@ import java.util.stream.Collectors;
 @Route(value = "my_account", layout = Menu.class)
 public class MyAccount extends VerticalLayout {
 
-    Client client = new Client();
-    TextField nameField = new TextField("ФИО");
-    TextField phoneField = new TextField("Телефон");
-    TextField passportField = new TextField("Номер паспорта");
-    TextField bankField = new TextField("Ваш банк");
-    BigDecimalField indebtedness = new BigDecimalField();
-    Select<Client> clientSelect = new Select<>();
-    Select<CreditOffer> creditOfferSelect = new Select<>();
+    IClientService clientService;
+    ICreditOfferService creditOfferService;
+    IPaymentScheduleService paymentScheduleService;
 
-    Button button = new Button("Изменить");
-    Button button1 = new Button("Сохранить");
-    @Autowired
+    private Client client = new Client();
+    private final TextField nameField = new TextField("ФИО");
+    private final TextField phoneField = new TextField("Телефон");
+    private final TextField passportField = new TextField("Номер паспорта");
+    private final TextField bankField = new TextField("Ваш банк");
+    private final BigDecimalField indebtedness = new BigDecimalField();
+    private final Select<Client> clientSelect = new Select<>();
+    private final Select<CreditOffer> creditOfferSelect = new Select<>();
+
+    private final Button button = new Button("Изменить");
+    private final Button button1 = new Button("Сохранить");
+
     public MyAccount(
-            IClientService clientService,
-            ICreditOfferService creditOfferService,
-            IPaymentScheduleService paymentScheduleService) {
+            @Autowired IClientService clientS,
+            @Autowired ICreditOfferService creditOfferS,
+            @Autowired IPaymentScheduleService scheduleS) {
+
+        this.clientService = clientS;
+        this.creditOfferService = creditOfferS;
+        this.paymentScheduleService = scheduleS;
 
 
 
 
-        configureSelects(clientService,creditOfferService,paymentScheduleService);
+        configureSelects();
 
         configureFields();
 
-        configureButtons(clientService);
+        configureButtons();
 
 
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -61,7 +69,7 @@ public class MyAccount extends VerticalLayout {
 
 
 
-    private void configureSelects(IClientService clientService, ICreditOfferService creditOfferService, IPaymentScheduleService paymentScheduleService) {
+    private void configureSelects() {
         creditOfferSelect.setVisible(false);
         creditOfferSelect.setLabel("Просмотр задолжности");
 
@@ -117,7 +125,7 @@ public class MyAccount extends VerticalLayout {
 
     }
 
-    private void configureButtons(IClientService clientService) {
+    private void configureButtons() {
         button.addClickListener(buttonClickEvent -> {
             nameField.setReadOnly(false);
             phoneField.setReadOnly(false);
@@ -132,6 +140,10 @@ public class MyAccount extends VerticalLayout {
             passportField.setReadOnly(true);
             button.setEnabled(true);
             button1.setEnabled(false);
+
+
+
+
 
             client.setPhone(phoneField.getValue());
             client.setPassportID(passportField.getValue());

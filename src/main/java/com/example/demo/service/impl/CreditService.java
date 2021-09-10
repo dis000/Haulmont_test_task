@@ -1,11 +1,13 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.interfaces.ICreditDao;
+import com.example.demo.entities.Bank;
 import com.example.demo.entities.Credit;
 import com.example.demo.service.interfaces.ICreditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,8 +37,9 @@ public class CreditService implements ICreditService {
     }
 
     @Override
-    public void update(Credit credit) {
-        dao.update(credit);
+    public void update(Bank bank, BigDecimal creditLimit, BigDecimal percentRate) {
+
+        dao.update(new Credit(bank,creditLimit,percentRate));
     }
 
     @Override

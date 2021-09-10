@@ -20,17 +20,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Route(value = "sign_up", layout = Menu.class)
 public class SignUp extends VerticalLayout {
 
-    private TextField name = new TextField("ФИО Полностью");
-    private TextField phone = new TextField("Номер телефона");
-    private TextField passportID = new TextField("Номер паспорта");
-    private Select<Bank> banksComboBox = new Select<>();
+    IClientService clientService;
+    IBankService bankService;
 
-    private Button save = new Button("Save");
+    private final TextField name = new TextField("ФИО Полностью");
+    private final TextField phone = new TextField("Номер телефона");
+    private final TextField passportID = new TextField("Номер паспорта");
+    private final Select<Bank> banksComboBox = new Select<>();
 
-    @Autowired
-    public SignUp(IClientService clientService, IBankService bankService) {
+    private final Button save = new Button("Save");
 
-        createComboBox(bankService);
+
+    public SignUp(
+            @Autowired IClientService clientS,
+            @Autowired IBankService bankS) {
+
+        this.clientService = clientS;
+        this.bankService = bankS;
+
+        createComboBox();
 
 
         name.setWidth(8F, Unit.CM);
@@ -46,7 +54,7 @@ public class SignUp extends VerticalLayout {
 
         add(createTitle());
         add(horizontalLayout1, horizontalLayout2);
-        add(createButtonLayout(clientService));
+        add(createButtonLayout());
     }
 
 
@@ -56,24 +64,23 @@ public class SignUp extends VerticalLayout {
     }
 
 
-    private Component createButtonLayout(IClientService clientService) {
+    private Component createButtonLayout() {
         HorizontalLayout buttonLayout = new HorizontalLayout();
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonLayout.add(save);
 
         buttonLayout.addClickListener(clickEvent -> clientService
-                .update(new Client(
-                        name.getValue(),
+                .save(name.getValue(),
                         phone.getValue(),
                         passportID.getValue(),
                         banksComboBox.getValue()
-                )));
+                ));
 
         return buttonLayout;
     }
 
 
-    private void createComboBox(IBankService bankService) {
+    private void createComboBox() {
         banksComboBox.setPlaceholder("Банк");
         banksComboBox.setLabel("Выбор банка");
         try{
