@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -48,49 +47,7 @@ public class PaymentScheduleService implements IPaymentScheduleService {
         return dao.findOne(uuid);
     }
 
-    @Override
-    public void save(Integer creditTime, BigDecimal creditAmount, String passportID, Credit credit) {
 
-
-        credit = creditService.getOne(credit.getID());
-
-
-        BigDecimal dividedPercent = credit.getPercentRate().divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_DOWN);
-        BigDecimal percentOfLoan = creditAmount.multiply(dividedPercent);
-        percentOfLoan = percentOfLoan.multiply(BigDecimal.valueOf(creditTime));
-
-        CreditOffer creditOffer = new CreditOffer(credit, clientService.getByPassportID(passportID), creditAmount);
-
-        int creditTimeInMonth = creditTime*12;
-
-        BigDecimal loamAmountInMonth = creditAmount.add(percentOfLoan)
-                .divide(BigDecimal.valueOf(creditTimeInMonth), 2, RoundingMode.HALF_DOWN);
-
-        BigDecimal creditAmountInMonth = creditAmount
-                .divide(BigDecimal.valueOf(creditTimeInMonth), 2, RoundingMode.HALF_DOWN);
-
-        BigDecimal percentOfLoanInMonth = percentOfLoan
-                .divide(BigDecimal.valueOf(creditTimeInMonth), 2, RoundingMode.HALF_DOWN);
-
-        creditOfferService.save(creditOffer);
-
-        Set<PaymentSchedule> scheduleList = new HashSet<>();
-        for (int i = 0; i < creditTimeInMonth; i++) {
-            PaymentSchedule paymentSchedule = new PaymentSchedule(
-                    LocalDate.now().plusMonths(i+1),
-                    loamAmountInMonth,
-                    creditAmountInMonth,
-                    percentOfLoanInMonth,
-                    creditOffer);
-
-            scheduleList.add(paymentSchedule);
-        }
-
-        for (PaymentSchedule schedule:
-                scheduleList) {
-            dao.update(schedule);
-        }
-    }
 
     @Override
     public void update(PaymentSchedule paymentSchedule) {
@@ -123,4 +80,39 @@ public class PaymentScheduleService implements IPaymentScheduleService {
         return dao.findByUUID(passportID);
     }
 
+    @Override
+    public void save(Integer creditTime, BigDecimal creditAmount, String passportID, Credit credit) {
+
+        credit = creditService.getOne(credit.getID());
+
+        CreditOffer creditOffer = new CreditOffer(credit, clientService.getByPassportID(passportID), creditAmount);
+        creditOfferService.save(creditOffer);
+
+        BigDecimal percentOfLoan = getPercentOfLoan(creditAmount, credit.getPercentRate(), creditTime);
+
+        BigDecimal paymentPerMonth = divideByMonth(percentOfLoan.add(creditAmount), creditTime);
+        BigDecimal paymentPerMonthBody = divideByMonth(creditAmount, creditTime);
+        BigDecimal paymentPerMonthPercent = divideByMonth(percentOfLoan, creditTime);
+
+        for (int i = 0; i < creditTime*12; i++) {
+            dao.update(new PaymentSchedule(
+                    LocalDate.now().plusMonths(i+1),
+                    paymentPerMonth,
+                    paymentPerMonthBody,
+                    paymentPerMonthPercent,
+                    creditOffer));
+        }
+    }
+
+
+    private BigDecimal getPercentOfLoan(BigDecimal creditAmount, BigDecimal percent, Integer creditTime) {
+        BigDecimal dividedPercent = percent.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_DOWN);
+        BigDecimal percentOfLoan = creditAmount.multiply(dividedPercent);
+        return percentOfLoan.multiply(BigDecimal.valueOf(creditTime));
+    }
+
+
+    private BigDecimal divideByMonth(BigDecimal value, Integer creditTime) {
+        return value.divide(BigDecimal.valueOf(creditTime*12), 2, RoundingMode.HALF_DOWN);
+    }
 }

@@ -117,34 +117,34 @@ public class CalculateCredit extends VerticalLayout {
 
                         fullLoanAmountField.setValue(getFullLoanAmount());
 
-                        paymentPerMonth.setValue(getFullLoanAmount()
-                                .divide(getCreditTimeInMonth(), 2, RoundingMode.HALF_DOWN));
-                        paymentPerMonthBody.setValue(creditAmount.getValue()
-                                .divide(getCreditTimeInMonth(), 2, RoundingMode.HALF_DOWN));
-                        paymentPerMonthPercent.setValue(getPercentOfLoan()
-                                .divide(getCreditTimeInMonth(), 2, RoundingMode.HALF_DOWN));
+                        paymentPerMonth.setValue(divideByMonth(getFullLoanAmount(), creditTime.getValue()));
+                        paymentPerMonthBody.setValue(divideByMonth(creditAmount.getValue(), creditTime.getValue()));
+                        paymentPerMonthPercent.setValue(divideByMonth(getPercentOfLoan(), creditTime.getValue()));
 
                         buttonEnterCreditOffer.setVisible(true);
                 });
                 return button;
         }
 
-        //дублирование кода с paymentScheduleService чтобы не нагружать сервер лишний раз
-        private BigDecimal getPercentOfLoan () {
-                BigDecimal percent = creditsComboBox.getValue().getPercentRate();
-                BigDecimal percentOfLoan = percent.divide(BigDecimal.valueOf(100), 5, RoundingMode.HALF_DOWN);
-                percentOfLoan = creditAmount.getValue().multiply(percentOfLoan);
-                percentOfLoan = percentOfLoan.multiply(BigDecimal.valueOf(creditTime.getValue().intValue())).setScale(3, RoundingMode.HALF_DOWN);
-                return percentOfLoan;
+
+        private BigDecimal divideByMonth(BigDecimal value, double creditTime) {
+                return value.divide(BigDecimal.valueOf(creditTime*12), 2, RoundingMode.HALF_DOWN);
         }
+
+        //дублирование кода с paymentScheduleService чтобы не нагружать сервер лишний раз
+
+        private BigDecimal getPercentOfLoan() {
+                BigDecimal dividedPercent = creditsComboBox.getValue().getPercentRate().divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_DOWN);
+                BigDecimal percentOfLoan = creditAmount.getValue().multiply(dividedPercent);
+                return percentOfLoan.multiply(BigDecimal.valueOf(creditTime.getValue()));
+        }
+
 
         private BigDecimal getFullLoanAmount() {
                 return getPercentOfLoan().add(creditAmount.getValue());
         }
 
-        private BigDecimal getCreditTimeInMonth () {
-                return BigDecimal.valueOf(12 * creditTime.getValue());
-        }
+
 
 
         private void clearResultFields() {
@@ -160,6 +160,8 @@ public class CalculateCredit extends VerticalLayout {
         }
 
         private void setSettingsOnFields() {
+
+
 
                 creditsComboBox.setWidth(6F, Unit.CM);
                 passportField.setWidth(6F, Unit.CM);
