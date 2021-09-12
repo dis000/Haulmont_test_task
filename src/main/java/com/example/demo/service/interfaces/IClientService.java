@@ -15,4 +15,5 @@ public interface IClientService {
     void deleteById(UUID uuid);
     void delete(Client client);
     Client getByPassportID(String passport);
+    Client getCreditOffers(UUID uuid);
 }

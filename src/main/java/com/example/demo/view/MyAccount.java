@@ -36,13 +36,18 @@ public class MyAccount extends VerticalLayout {
     private final Select<Client> clientSelect = new Select<>();
     private final Select<CreditOffer> creditOfferSelect = new Select<>();
 
-    private final Button button = new Button("Изменить");
-    private final Button button1 = new Button("Сохранить");
+    private final Button changeButton = new Button("Изменить");
+    private final Button saveChangesButton = new Button("Сохранить");
+    private final Button deleteCreditOfferButton = new Button("Удалить кредит(для теста)");
+    private final Button deleteClientButton = new Button("Удалить аккаунт");
+
+
 
     public MyAccount(
             @Autowired IClientService clientS,
             @Autowired ICreditOfferService creditOfferS,
             @Autowired IPaymentScheduleService scheduleS) {
+
 
         this.clientService = clientS;
         this.creditOfferService = creditOfferS;
@@ -60,10 +65,12 @@ public class MyAccount extends VerticalLayout {
 
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 
-        HorizontalLayout horizontalLayout = new HorizontalLayout(nameField, phoneField, button);
-        HorizontalLayout horizontalLayout1 = new HorizontalLayout(passportField, bankField, button1);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(clientSelect, deleteClientButton);
+        HorizontalLayout horizontalLayout1 = new HorizontalLayout(nameField, phoneField, changeButton);
 
-        add(clientSelect,horizontalLayout,horizontalLayout1,creditOfferSelect, indebtedness);
+        HorizontalLayout horizontalLayout2 = new HorizontalLayout(passportField, bankField, saveChangesButton);
+
+        add(horizontalLayout,horizontalLayout1,horizontalLayout2,creditOfferSelect, indebtedness, deleteCreditOfferButton);
 
     }
 
@@ -74,6 +81,8 @@ public class MyAccount extends VerticalLayout {
         creditOfferSelect.setLabel("Просмотр задолжности");
 
         clientSelect.setLabel("Тестовое поле");
+
+        clientSelect.setHelperText("для удаления акка не должно быть кредитов");
 
         clientSelect.setItems(clientService.getAll());
 
@@ -86,7 +95,12 @@ public class MyAccount extends VerticalLayout {
             List<CreditOffer> creditOffer = creditOfferService.getByClientID(client.getID());
             creditOfferSelect.setItems(creditOffer);
             creditOfferSelect.setVisible(true);
-            button.setEnabled(true);
+            changeButton.setEnabled(true);
+            deleteCreditOfferButton.setVisible(false);
+
+            deleteClientButton.setEnabled(creditOffer.isEmpty());
+
+
         });
 
         creditOfferSelect.addValueChangeListener(select -> {
@@ -106,43 +120,48 @@ public class MyAccount extends VerticalLayout {
 
             indebtedness.setValue(bigDecimal);
             indebtedness.setLabel("нужно оплатить до " + LocalDate.now().plusMonths(4));
+
+
+            deleteCreditOfferButton.setVisible(true);
         });
     }
     private void configureFields() {
         indebtedness.setWidth(6F, Unit.CM);
         creditOfferSelect.setWidth(6F, Unit.CM);
         clientSelect.setWidth(6F, Unit.CM);
+        deleteCreditOfferButton.setWidth(6F, Unit.CM);
 
         bankField.setReadOnly(true);
         indebtedness.setReadOnly(true);
         nameField.setReadOnly(true);
         phoneField.setReadOnly(true);
         passportField.setReadOnly(true);
-        button1.setEnabled(false);
-        button.setEnabled(false);
+        saveChangesButton.setEnabled(false);
+        changeButton.setEnabled(false);
+        deleteCreditOfferButton.setVisible(false);
+        deleteClientButton.setEnabled(false);
+
 
 
 
     }
 
     private void configureButtons() {
-        button.addClickListener(buttonClickEvent -> {
+        changeButton.addClickListener(buttonClickEvent -> {
+
             nameField.setReadOnly(false);
             phoneField.setReadOnly(false);
             passportField.setReadOnly(false);
-            button.setEnabled(false);
-            button1.setEnabled(true);
+            changeButton.setEnabled(false);
+            saveChangesButton.setEnabled(true);
         });
 
-        button1.addClickListener(buttonClickEvent -> {
+        saveChangesButton.addClickListener(buttonClickEvent -> {
             nameField.setReadOnly(true);
             phoneField.setReadOnly(true);
             passportField.setReadOnly(true);
-            button.setEnabled(true);
-            button1.setEnabled(false);
-
-
-
+            changeButton.setEnabled(true);
+            saveChangesButton.setEnabled(false);
 
 
             client.setPhone(phoneField.getValue());
@@ -151,6 +170,14 @@ public class MyAccount extends VerticalLayout {
 
             clientService.update(client);
 
+        });
+
+        deleteCreditOfferButton.addClickListener(buttonClickEvent -> {
+            creditOfferService.delete(creditOfferSelect.getValue());
+        });
+
+        deleteClientButton.addClickListener(buttonClickEvent -> {
+            clientService.delete(clientSelect.getValue());
         });
     }
 }

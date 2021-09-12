@@ -23,14 +23,7 @@ public class ClientService implements IClientService {
 
     @Override
     public List<Client> getAll() {
-
-        List<Client> clients = dao.findAll();
-        for (Client client:
-             clients) {
-            client.setCreditOffers(null);
-        }
-
-        return clients;
+        return dao.findAll();
     }
 
 
@@ -66,9 +59,14 @@ public class ClientService implements IClientService {
         dao.delete(client);
     }
 
-    //todo
+
     @Override
     public Client getByPassportID(String passport) {
         return dao.findByPassportID(passport);
+    }
+
+    @Override
+    public Client getCreditOffers(UUID uuid) {
+        return dao.findCreditOffers(uuid);
     }
 }

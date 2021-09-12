@@ -37,7 +37,6 @@ public class CreditOffer implements IEntity {
     @Column(name = "AMOUNT_OF_PAYMENT")
     private BigDecimal amountOfPayment;
 
-    //TODO
     @OneToMany(mappedBy = "creditOffer", fetch = FetchType.EAGER)
     private Set<PaymentSchedule> paymentSchedule;
 

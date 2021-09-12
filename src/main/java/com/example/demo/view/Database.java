@@ -1,6 +1,7 @@
 package com.example.demo.view;
 
 
+import com.example.demo.entities.Bank;
 import com.example.demo.entities.Client;
 import com.example.demo.entities.Credit;
 import com.example.demo.entities.PaymentSchedule;

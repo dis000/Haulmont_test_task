@@ -29,7 +29,7 @@ public class Credit implements IEntity {
     @Column(name = "PERCENT_RATE")
     private BigDecimal percentRate;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "BANK")
     @NotNull
     private Bank bank;

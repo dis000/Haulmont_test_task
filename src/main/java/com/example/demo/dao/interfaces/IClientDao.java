@@ -8,4 +8,5 @@ import java.util.UUID;
 public interface IClientDao extends IAbstractJpaDao<Client, UUID> {
     Client findCreditOffers(UUID uuid);
     Client findByPassportID(String passportID);
+    void delete(Client client);
 }
