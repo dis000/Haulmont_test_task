@@ -23,7 +23,6 @@ public class CreditOfferDao extends AbstractJpaDao<CreditOffer, UUID> implements
     @PersistenceContext
     EntityManager entityManager;
 
-
     public List<CreditOffer> findByCreditID(UUID uuid) {
         return entityManager.createQuery(
                 "select c from CreditOffer c where c.credit.ID='" + uuid + "'", CreditOffer.class)
@@ -39,11 +38,8 @@ public class CreditOfferDao extends AbstractJpaDao<CreditOffer, UUID> implements
     @Override
     @Transactional
     public void delete(CreditOffer creditOffer) {
-
-
         entityManager.flush();
         entityManager.clear();
-
 
         Query qd = entityManager.createQuery("delete from PaymentSchedule p where p.creditOffer.ID = :creditOfferId");
         qd.setParameter("creditOfferId",creditOffer.getID());

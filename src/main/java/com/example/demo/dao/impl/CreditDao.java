@@ -20,7 +20,6 @@ public class CreditDao extends AbstractJpaDao<Credit, UUID> implements ICreditDa
     @PersistenceContext
     EntityManager entityManager;
 
-
     public List<Credit> findByBankID(UUID uuid) {
         return entityManager.createQuery(
                 "select c from Credit c where c.bank.ID='"+ uuid +"'", Credit.class)

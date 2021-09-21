@@ -19,9 +19,6 @@ public class BankDao extends AbstractJpaDao<Bank, UUID> implements IBankDao {
     @PersistenceContext
     EntityManager entityManager;
 
-
-
-
     public Bank findBankClients(UUID uuid) {
         return entityManager.createQuery(
                 "select b from Bank b join fetch b.clients where b.ID='"+ uuid +"'", Bank.class)

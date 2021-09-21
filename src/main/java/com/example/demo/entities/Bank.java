@@ -26,21 +26,16 @@ public class Bank implements IEntity {
     @Column(length = 25,name = "NAME",unique = true)
     private String name;
 
-
-
-
-
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "bank",orphanRemoval = true)
     private Set<Client> clients;
-
 
    @OneToMany(fetch = FetchType.LAZY, mappedBy = "bank", orphanRemoval = true)
     private Set<Credit> credits;
 
-
     public Bank(String name) {
         this.name = name;
     }
+
 
     @Override
     public String toString() {

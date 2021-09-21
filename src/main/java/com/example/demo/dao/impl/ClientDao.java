@@ -21,7 +21,6 @@ public class ClientDao extends AbstractJpaDao<Client, UUID> implements IClientDa
     @PersistenceContext
     EntityManager entityManager;
 
-
     public Client findCreditOffers(UUID uuid) {
         return entityManager.createQuery(
                 "select c from Client c join fetch c.creditOffers where c.ID='"+ uuid +"'", Client.class)
@@ -39,8 +38,6 @@ public class ClientDao extends AbstractJpaDao<Client, UUID> implements IClientDa
     @Override
     @Transactional
     public void delete(Client client) {
-
-
         entityManager.flush();
         entityManager.clear();
 

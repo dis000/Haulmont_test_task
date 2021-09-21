@@ -113,19 +113,23 @@ public class CalculateCredit extends VerticalLayout {
                                 return;
                         }
 
-                        resultPercentField.setValue(getPercentOfLoan());
-
-                        fullLoanAmountField.setValue(getFullLoanAmount());
-
-                        paymentPerMonth.setValue(divideByMonth(getFullLoanAmount(), creditTime.getValue()));
-                        paymentPerMonthBody.setValue(divideByMonth(creditAmount.getValue(), creditTime.getValue()));
-                        paymentPerMonthPercent.setValue(divideByMonth(getPercentOfLoan(), creditTime.getValue()));
+                        setResultFields();
 
                         buttonEnterCreditOffer.setVisible(true);
                 });
                 return button;
         }
 
+        private void setResultFields() {
+                resultPercentField.setValue(getPercentOfLoan());
+
+                fullLoanAmountField.setValue(getFullLoanAmount());
+
+                paymentPerMonth.setValue(divideByMonth(getFullLoanAmount(), creditTime.getValue()));
+                paymentPerMonthBody.setValue(divideByMonth(creditAmount.getValue(), creditTime.getValue()));
+                paymentPerMonthPercent.setValue(divideByMonth(getPercentOfLoan(), creditTime.getValue()));
+
+        }
 
         private BigDecimal divideByMonth(BigDecimal value, double creditTime) {
                 return value.divide(BigDecimal.valueOf(creditTime*12), 2, RoundingMode.HALF_DOWN);
